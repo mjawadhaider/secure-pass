@@ -215,7 +215,7 @@ export default function HomePage() {
                             Verifying Identity
                         </h2>
                         <p className="text-gray-500 mt-2">
-                            Use your device's security method
+                            Use your device&#39;s security method
                         </p>
                     </div>
                 </div>
