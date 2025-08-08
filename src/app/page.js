@@ -106,11 +106,30 @@ export default function HomePage() {
 
         if (biometricAvailable) {
             setIsAuthenticating(true);
-            const authenticated = await AuthService.authenticateWithBiometric();
-            if (authenticated) {
-                setViewPassword(password);
+            try {
+                const authenticated = await AuthService.authenticateWithBiometric();
+                if (authenticated) {
+                    setViewPassword(password);
+                } else {
+                    // If biometric auth fails, fall back to PIN
+                    if (AuthService.hasPin()) {
+                        // Keep isAuthenticating true but show PIN modal instead
+                    } else {
+                        // No PIN set, show PIN setup
+                        setShowPinSetup(true);
+                    }
+                }
+            } catch (error) {
+                console.error("Authentication error:", error);
+                // Fall back to PIN if available
+                if (AuthService.hasPin()) {
+                    // Keep isAuthenticating true
+                } else {
+                    setShowPinSetup(true);
+                }
+            } finally {
+                setIsAuthenticating(false);
             }
-            setIsAuthenticating(false);
         } else if (AuthService.hasPin()) {
             // Show PIN verification
             setIsAuthenticating(true);
@@ -193,10 +212,10 @@ export default function HomePage() {
                     <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
                         <FaFingerprint className="text-5xl text-blue-600 mx-auto mb-4 animate-pulse" />
                         <h2 className="text-xl font-bold text-blue-700">
-                            Authenticating...
+                            Verifying Identity
                         </h2>
                         <p className="text-gray-500 mt-2">
-                            Use your fingerprint or face to continue
+                            Use your device's security method
                         </p>
                     </div>
                 </div>
