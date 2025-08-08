@@ -1,103 +1,244 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import {FaEye, FaPlus, FaSearch, FaUserCircle, FaFingerprint} from "react-icons/fa";
+import {useEffect, useState} from "react";
+import AddNewPasswordModal from "../components/CreateUpdatePasswordModal";
+import ShowPasswordModal from "@/components/ShowPasswordModal";
+import PinModal from "@/components/PinModal";
+import AuthService from "@/services/AuthService";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default function HomePage() {
+    const [passwords, setPasswords] = useState([]);
+    const [filteredPasswords, setFilteredPasswords] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [editPassword, setEditPassword] = useState(null);
+    const [viewPassword, setViewPassword] = useState(null);
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
+    const [selectedPasswordForAuth, setSelectedPasswordForAuth] = useState(null);
+    const [biometricAvailable, setBiometricAvailable] = useState(false);
+    const [showPinSetup, setShowPinSetup] = useState(false);
+
+    // Load passwords from localStorage on mount
+    useEffect(() => {
+        loadPasswords();
+    }, []);
+
+    // Update filteredPasswords when passwords change
+    useEffect(() => {
+        setFilteredPasswords(passwords);
+    }, [passwords]);
+
+    // Save passwords to localStorage whenever passwords change
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            localStorage.setItem("passwords", JSON.stringify(passwords));
+            // Optional: console.log for debugging
+            // console.log('Passwords saved to localStorage', passwords);
+        }
+    }, [passwords]);
+
+    // Check for biometric availability on mount
+    useEffect(() => {
+        const checkBiometricAvailability = async () => {
+            const available = await AuthService.isBiometricAvailable();
+            setBiometricAvailable(available);
+
+            // If no PIN is set, show PIN setup on first load
+            if (!AuthService.hasPin()) {
+                setShowPinSetup(true);
+            }
+        };
+
+        checkBiometricAvailability();
+    }, []);
+
+    function loadPasswords() {
+        const stored = typeof window !== "undefined" ? localStorage.getItem("passwords") : null;
+        if (stored) {
+            try {
+                setPasswords(JSON.parse(stored));
+            } catch {
+                setPasswords([]);
+            }
+        }
+    }
+
+    function handleSearch(value) {
+        setSearchTerm(value);
+        if (!value.trim()) {
+            setFilteredPasswords(passwords);
+            return;
+        }
+        const filtered = passwords.filter(password =>
+            password.title?.toLowerCase().includes(value.toLowerCase()) ||
+            password.username?.toLowerCase().includes(value.toLowerCase()) ||
+            password.url?.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredPasswords(filtered);
+    }
+
+    function handleKeyDown(e) {
+        const value = e.target.value;
+        handleSearch(value);
+    }
+
+    function addNewPassword(newPassword, isEdit = false) {
+        if (isEdit && newPassword.id) {
+            setPasswords(prev =>
+                prev.map(p => (p.id === newPassword.id ? newPassword : p))
+            );
+        } else {
+            setPasswords(prev => [...prev, newPassword]);
+        }
+        setSearchTerm("");
+        setShowModal(false);
+        setEditPassword(null);
+    }
+
+    function onCloseNewPasswordModal() {
+        setShowModal(false);
+        setEditPassword(null);
+    }
+
+    async function handleViewPassword(password) {
+        setSelectedPasswordForAuth(password);
+
+        if (biometricAvailable) {
+            setIsAuthenticating(true);
+            const authenticated = await AuthService.authenticateWithBiometric();
+            if (authenticated) {
+                setViewPassword(password);
+            }
+            setIsAuthenticating(false);
+        } else if (AuthService.hasPin()) {
+            // Show PIN verification
+            setIsAuthenticating(true);
+        } else {
+            // No security set up, show PIN setup first
+            setShowPinSetup(true);
+        }
+    }
+
+    function handlePinSuccess() {
+        setIsAuthenticating(false);
+        setShowPinSetup(false);
+        if (selectedPasswordForAuth) {
+            setViewPassword(selectedPasswordForAuth);
+            setSelectedPasswordForAuth(null);
+        }
+    }
+
+    function handlePinCancel() {
+        setIsAuthenticating(false);
+        setShowPinSetup(false);
+        setSelectedPasswordForAuth(null);
+    }
+
+    function closeViewModal() {
+        setViewPassword(null);
+    }
+
+    return (
+        <div>
+            <div className="relative w-full max-w-md mx-auto mt-2 mb-5">
+                <input
+                    type="text"
+                    placeholder="Search passwords..."
+                    defaultValue={searchTerm}
+                    onKeyUp={handleKeyDown}
+                    className="w-full pl-10 pr-4 py-2 rounded-lg text-black bg-white/70 focus:bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all"
+                />
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"/>
+            </div>
+
+            {/* Add Button */}
+            <button
+                onClick={() => setShowModal(true)}
+                className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center z-30 transition"
+                aria-label="Add new password"
+            >
+                <FaPlus className="text-2xl"/>
+            </button>
+
+            {/* Add/Edit Modal */}
+            {showModal && (
+                <AddNewPasswordModal
+                    addNewPassword={addNewPassword}
+                    onCloseModal={onCloseNewPasswordModal}
+                    editPassword={editPassword}
+                />
+            )}
+
+            {/* PIN Setup Modal */}
+            {showPinSetup && (
+                <PinModal
+                    onSuccess={handlePinSuccess}
+                    onCancel={handlePinCancel}
+                    isSetup={true}
+                />
+            )}
+
+            {/* PIN Verification Modal */}
+            {isAuthenticating && !biometricAvailable && (
+                <PinModal
+                    onSuccess={handlePinSuccess}
+                    onCancel={handlePinCancel}
+                />
+            )}
+
+            {/* Biometric Authentication Indicator */}
+            {isAuthenticating && biometricAvailable && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
+                        <FaFingerprint className="text-5xl text-blue-600 mx-auto mb-4 animate-pulse" />
+                        <h2 className="text-xl font-bold text-blue-700">
+                            Authenticating...
+                        </h2>
+                        <p className="text-gray-500 mt-2">
+                            Use your fingerprint or face to continue
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* View Password Modal */}
+            {viewPassword && (
+                <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword} />
+            )}
+
+            <h2 className="text-2xl font-bold mb-6 text-white tracking-tight">Saved Passwords</h2>
+            <ul className="space-y-4">
+                {filteredPasswords.map((item) => (
+                    <li
+                        key={item.id}
+                        className="bg-white/80 p-4 rounded-xl shadow-md flex items-center justify-between hover:shadow-lg transition-shadow"
+                    >
+                        <div className="flex items-center gap-3">
+                            <FaUserCircle className="text-gray-800 text-3xl"/>
+                            <div>
+                                <p className="font-semibold text-lg text-gray-800">{item.title}</p>
+                                <p className="text-gray-500 text-sm">{item.username}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className="bg-gray-800 hover:bg-gray-900 px-4 py-2 text-white rounded-lg flex items-center gap-2 shadow transition"
+                                onClick={() => handleViewPassword(item)}
+                            >
+                                <FaEye/> <span className="hidden sm:inline">View</span>
+                            </button>
+                            <button
+                                className="bg-blue-500 hover:bg-blue-600 px-4 py-2 text-white rounded-lg flex items-center gap-2 shadow transition"
+                                onClick={() => handleEditPassword(item)}
+                                aria-label="Edit"
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
