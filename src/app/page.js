@@ -101,40 +101,44 @@ export default function HomePage() {
         setEditPassword(null);
     }
 
+    const [handleEditPassword, setHandleEditPassword] = useState(null);
+
+    // Add missing handleEditPassword function
+    function handleEditPassword(password) {
+        setEditPassword(password);
+        setShowModal(true);
+    }
+
     async function handleViewPassword(password) {
         setSelectedPasswordForAuth(password);
 
+        // First check if we have a PIN set up
+        const hasPin = AuthService.hasPin();
+
+        // If biometrics are available, try that first
         if (biometricAvailable) {
             setIsAuthenticating(true);
             try {
                 const authenticated = await AuthService.authenticateWithBiometric();
                 if (authenticated) {
+                    // Success with biometrics
                     setViewPassword(password);
-                } else {
-                    // If biometric auth fails, fall back to PIN
-                    if (AuthService.hasPin()) {
-                        // Keep isAuthenticating true but show PIN modal instead
-                    } else {
-                        // No PIN set, show PIN setup
-                        setShowPinSetup(true);
-                    }
+                    setIsAuthenticating(false);
+                    return;
                 }
             } catch (error) {
-                console.error("Authentication error:", error);
-                // Fall back to PIN if available
-                if (AuthService.hasPin()) {
-                    // Keep isAuthenticating true
-                } else {
-                    setShowPinSetup(true);
-                }
-            } finally {
-                setIsAuthenticating(false);
+                console.error("Biometric authentication failed:", error);
             }
-        } else if (AuthService.hasPin()) {
-            // Show PIN verification
+
+            // Biometric failed, fall back to PIN
+            setIsAuthenticating(false);
+        }
+
+        // If we have a PIN, show PIN verification
+        if (hasPin) {
             setIsAuthenticating(true);
         } else {
-            // No security set up, show PIN setup first
+            // No PIN set up, show PIN setup
             setShowPinSetup(true);
         }
     }
@@ -157,6 +161,15 @@ export default function HomePage() {
     function closeViewModal() {
         setViewPassword(null);
     }
+
+    // Make sure PIN setup works first time
+    useEffect(() => {
+        // Check if we should show PIN setup on first visit
+        if (typeof window !== "undefined" && !localStorage.getItem('securepass_pin_setup_shown')) {
+            setShowPinSetup(true);
+            localStorage.setItem('securepass_pin_setup_shown', 'true');
+        }
+    }, []);
 
     return (
         <div>

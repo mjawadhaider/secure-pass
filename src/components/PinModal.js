@@ -55,6 +55,19 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
     }
   };
 
+  // Focus the input when modal opens
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      const input = document.querySelector('input[inputmode="numeric"]');
+      if (input) {
+        input.focus();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [showConfirm]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm relative">
@@ -70,7 +83,9 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
           <FaLock className="text-4xl text-blue-600 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-blue-700">
             {isSetup
-              ? (showConfirm ? "Confirm your PIN" : "Set up a PIN")
+              ? showConfirm
+                ? "Confirm your PIN"
+                : "Set up a PIN"
               : "Enter your PIN"}
           </h2>
           <p className="text-gray-500 text-sm mt-2">
@@ -89,6 +104,7 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
             className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 p-3 w-full rounded-lg transition text-center text-2xl tracking-widest"
             autoFocus
             inputMode="numeric"
+            pattern="[0-9]*"
           />
 
           {error && (
@@ -100,7 +116,9 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
             className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white rounded-lg flex items-center gap-2 font-semibold shadow transition w-full justify-center"
           >
             {isSetup
-              ? (showConfirm ? "Confirm PIN" : "Continue")
+              ? showConfirm
+                ? "Confirm PIN"
+                : "Continue"
               : "Unlock"}
           </button>
         </form>
@@ -108,4 +126,3 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
     </div>
   );
 }
-
