@@ -42,7 +42,7 @@ class AuthService {
 
       console.log("Authenticated!", credential);
 
-      return !!credential;
+      return credential;
     } catch (error) {
       console.error("Authentication error:", error);
       return false;
