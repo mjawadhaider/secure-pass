@@ -128,9 +128,8 @@ export default function HomePage() {
             setIsAuthenticating(true);
             try {
                 const authenticated = await AuthService.authenticateWithBiometric();
-                setLogs([...logs, ]);
-                addLogs(`authenticated with biometrics: ${authenticated}`);
-                if (authenticated) {
+                addLogs(`authenticated with biometrics: ${authenticated.msg}`);
+                if (authenticated.success) {
                     // Success with biometrics
                     setViewPassword(password);
                     setIsAuthenticating(false);

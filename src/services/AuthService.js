@@ -21,7 +21,7 @@ class AuthService {
   static async authenticateWithBiometric() {
     try {
       if (!window.PublicKeyCredential) {
-        return false;
+        return {msg: 'window.PublicKeyCredential is false', success: false};
       }
 
       // Create a simple credential request
@@ -42,10 +42,10 @@ class AuthService {
 
       console.log("Authenticated!", credential);
 
-      return credential;
+      return {msg: credential, success: true};
     } catch (error) {
       console.error("Authentication error:", error);
-      return false;
+      return {msg: error.message || error, success: false};
     }
   }
 
