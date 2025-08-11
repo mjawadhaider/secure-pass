@@ -1,6 +1,6 @@
 "use client";
 
-import {FaEye, FaPlus, FaSearch, FaUserCircle, FaFingerprint} from "react-icons/fa";
+import {FaEye, FaFingerprint, FaPlus, FaSearch, FaUserCircle} from "react-icons/fa";
 import {useEffect, useState} from "react";
 import AddNewPasswordModal from "../components/CreateUpdatePasswordModal";
 import ShowPasswordModal from "@/components/ShowPasswordModal";
@@ -182,7 +182,8 @@ export default function HomePage() {
 
     return (
         <div>
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 min-h-50 flex flex-col justify-center rounded-2xl">
+            <div
+                className="bg-gradient-to-r from-blue-500 to-purple-600 min-h-50 flex flex-col justify-center rounded-2xl">
                 {logs.map((l, index) => (
                     <div key={index} className="bg-gray-800/50 p-2 rounded-lg shadow-md m-2">
                         <p className="text-white text-sm mb-1">
@@ -240,8 +241,11 @@ export default function HomePage() {
             {/* Biometric Authentication Indicator */}
             {isAuthenticating && biometricAvailable && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
-                        <FaFingerprint className="text-5xl text-blue-600 mx-auto mb-4 animate-pulse" />
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl p-8 text-center"
+                         onClick={(e) => e.stopPropagation()}
+                    >
+                        <FaFingerprint className="text-5xl text-blue-600 mx-auto mb-4 animate-pulse"/>
                         <h2 className="text-xl font-bold text-blue-700">
                             Verifying Identity
                         </h2>
@@ -254,7 +258,7 @@ export default function HomePage() {
 
             {/* View Password Modal */}
             {viewPassword && (
-                <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword} />
+                <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword}/>
             )}
 
             <h2 className="text-2xl font-bold mb-6 text-white tracking-tight">Saved Passwords</h2>
