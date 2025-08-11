@@ -29,7 +29,8 @@ class AuthService {
       window.crypto.getRandomValues(challenge);
 
       const publicKeyCredentialRequestOptions = {
-        challenge,
+        challenge: new Uint8Array(32),
+        allowCredentials: [], // previously registered credentials
         timeout: 60000,
         userVerification: 'required' // Force user verification (biometric or PIN)
       };
@@ -38,6 +39,8 @@ class AuthService {
       const credential = await navigator.credentials.get({
         publicKey: publicKeyCredentialRequestOptions
       });
+
+      console.log("Authenticated!", credential);
 
       return !!credential;
     } catch (error) {

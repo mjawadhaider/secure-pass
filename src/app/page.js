@@ -18,6 +18,7 @@ export default function HomePage() {
     const [selectedPasswordForAuth, setSelectedPasswordForAuth] = useState(null);
     const [biometricAvailable, setBiometricAvailable] = useState(false);
     const [showPinSetup, setShowPinSetup] = useState(false);
+    const [showMessage, setShowMessage] = useState("");
 
     // Load passwords from localStorage on mount
     useEffect(() => {
@@ -120,6 +121,7 @@ export default function HomePage() {
             setIsAuthenticating(true);
             try {
                 const authenticated = await AuthService.authenticateWithBiometric();
+                setShowMessage(authenticated);
                 if (authenticated) {
                     // Success with biometrics
                     setViewPassword(password);
@@ -173,6 +175,9 @@ export default function HomePage() {
 
     return (
         <div>
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-64 flex items-center justify-center">
+                {showMessage}
+            </div>
             <div className="relative w-full max-w-md mx-auto mt-2 mb-5">
                 <input
                     type="text"
