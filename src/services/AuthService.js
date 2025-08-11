@@ -83,7 +83,7 @@ class AuthService {
         };
 
         const assertion = await navigator.credentials.get({ publicKey });
-        logs.push("Assertion received:", assertion);
+        logs.push(`Assertion received: ${JSON.stringify(assertion)}`);
 
         return {logs, success: true};
     }
