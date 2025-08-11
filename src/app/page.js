@@ -171,6 +171,12 @@ export default function HomePage() {
         setViewPassword(null);
     }
 
+    function onClickOutsideLoader(e) {
+        console.log(e, 'clicked outside loader');
+        e.stopPropagation();
+        setIsAuthenticating(false);
+    }
+
     // Make sure PIN setup works first time
     useEffect(() => {
         // Check if we should show PIN setup on first visit
@@ -182,16 +188,16 @@ export default function HomePage() {
 
     return (
         <div>
-            <div
-                className="bg-gradient-to-r from-blue-500 to-purple-600 min-h-50 flex flex-col justify-center rounded-2xl">
-                {logs.map((l, index) => (
-                    <div key={index} className="bg-gray-800/50 p-2 rounded-lg shadow-md m-2">
-                        <p className="text-white text-sm mb-1">
-                            {l}
-                        </p>
-                    </div>
-                ))}
-            </div>
+            {/*<div*/}
+            {/*    className="bg-gradient-to-r from-blue-500 to-purple-600 min-h-50 flex flex-col justify-center rounded-2xl">*/}
+            {/*    {logs.map((l, index) => (*/}
+            {/*        <div key={index} className="bg-gray-800/50 p-2 rounded-lg shadow-md m-2">*/}
+            {/*            <p className="text-white text-sm mb-1">*/}
+            {/*                {l}*/}
+            {/*            </p>*/}
+            {/*        </div>*/}
+            {/*    ))}*/}
+            {/*</div>*/}
             <div className="relative w-full max-w-md mx-auto mt-2 mb-5">
                 <input
                     type="text"
@@ -240,10 +246,9 @@ export default function HomePage() {
 
             {/* Biometric Authentication Indicator */}
             {isAuthenticating && biometricAvailable && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClickOutsideLoader}>
                     <div
                         className="bg-white rounded-2xl shadow-2xl p-8 text-center"
-                         onClick={(e) => e.stopPropagation()}
                     >
                         <FaFingerprint className="text-5xl text-blue-600 mx-auto mb-4 animate-pulse"/>
                         <h2 className="text-xl font-bold text-blue-700">
