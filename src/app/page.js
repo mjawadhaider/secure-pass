@@ -101,7 +101,7 @@ export default function HomePage() {
         setEditPassword(null);
     }
 
-    const [handleEditPassword, setHandleEditPassword] = useState(null);
+    //const [handleEditPassword, setHandleEditPassword] = useState(null);
 
     // Add missing handleEditPassword function
     function handleEditPassword(password) {
