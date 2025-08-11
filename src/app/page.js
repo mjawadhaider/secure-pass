@@ -18,7 +18,11 @@ export default function HomePage() {
     const [selectedPasswordForAuth, setSelectedPasswordForAuth] = useState(null);
     const [biometricAvailable, setBiometricAvailable] = useState(false);
     const [showPinSetup, setShowPinSetup] = useState(false);
-    const [showMessage, setShowMessage] = useState("");
+    const [logs, setLogs] = useState([]);
+
+    const addLogs = (message) => {
+        setLogs(prevLogs => [...prevLogs, `${message}\n`]);
+    }
 
     // Load passwords from localStorage on mount
     useEffect(() => {
@@ -43,6 +47,7 @@ export default function HomePage() {
     useEffect(() => {
         const checkBiometricAvailability = async () => {
             const available = await AuthService.isBiometricAvailable();
+            addLogs(`isBiometricAvailable: ${available}`);
             setBiometricAvailable(available);
 
             // If no PIN is set, show PIN setup on first load
@@ -115,13 +120,16 @@ export default function HomePage() {
 
         // First check if we have a PIN set up
         const hasPin = AuthService.hasPin();
+        addLogs(`Has PIN: ${hasPin}`);
+        addLogs(`biometricAvailable: ${biometricAvailable}`);
 
         // If biometrics are available, try that first
         if (biometricAvailable) {
             setIsAuthenticating(true);
             try {
                 const authenticated = await AuthService.authenticateWithBiometric();
-                setShowMessage(authenticated);
+                setLogs([...logs, ]);
+                addLogs(`authenticated with biometrics: ${authenticated}`);
                 if (authenticated) {
                     // Success with biometrics
                     setViewPassword(password);
@@ -175,8 +183,14 @@ export default function HomePage() {
 
     return (
         <div>
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-64 flex items-center justify-center">
-                {showMessage}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 min-h-50 flex flex-col justify-center rounded-2xl">
+                {logs.map((l, index) => (
+                    <div key={index} className="bg-gray-800/50 p-2 rounded-lg shadow-md m-2">
+                        <p className="text-white text-sm mb-1">
+                            {l}
+                        </p>
+                    </div>
+                ))}
             </div>
             <div className="relative w-full max-w-md mx-auto mt-2 mb-5">
                 <input
