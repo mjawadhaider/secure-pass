@@ -18,9 +18,11 @@ export function ThemeProvider({ children }) {
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      document.body.classList.toggle('dark', savedTheme === 'dark');
     } else if (prefersDark) {
       setTheme('dark');
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     }
   }, []);
 
