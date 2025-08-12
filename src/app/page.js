@@ -1,6 +1,6 @@
 "use client";
 
-import {FaEye, FaFingerprint, FaPlus, FaSearch, FaUserCircle} from "react-icons/fa";
+import {FaEye, FaFingerprint, FaPlus, FaSearch, FaUserCircle, FaPencilAlt, FaTrash} from "react-icons/fa";
 import {useEffect, useState} from "react";
 import AddNewPasswordModal from "../components/CreateUpdatePasswordModal";
 import ShowPasswordModal from "@/components/ShowPasswordModal";
@@ -16,6 +16,7 @@ export default function HomePage() {
     const [viewPassword, setViewPassword] = useState(null);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [selectedPasswordForAuth, setSelectedPasswordForAuth] = useState(null);
+    const [passwordToDelete, setPasswordToDelete] = useState(null);
     const [biometricAvailable, setBiometricAvailable] = useState(false);
     const [showPinSetup, setShowPinSetup] = useState(false);
     const [logs, setLogs] = useState([]);
@@ -152,12 +153,56 @@ export default function HomePage() {
         }
     }
 
+    async function handleDeletePassword(password) {
+        setPasswordToDelete(password);
+
+        // First check if we have a PIN set up
+        const hasPin = AuthService.hasPin();
+
+        // If biometrics are available, try that first
+        if (biometricAvailable) {
+            setIsAuthenticating(true);
+            try {
+                const response = await AuthService.authenticateLocal();
+                setLogs((prevLogs) => [...prevLogs, ...response.logs]);
+                if (response.success) {
+                    // Success with biometrics
+                    confirmDelete(password);
+                    setIsAuthenticating(false);
+                    return;
+                }
+            } catch (error) {
+                console.error("Biometric authentication failed:", error);
+            }
+
+            // Biometric failed, fall back to PIN
+            setIsAuthenticating(false);
+        }
+
+        // If we have a PIN, show PIN verification
+        if (hasPin) {
+            setIsAuthenticating(true);
+        } else {
+            // No PIN set up, show PIN setup
+            setShowPinSetup(true);
+        }
+    }
+
+    function confirmDelete(password) {
+        const updatedPasswords = passwords.filter(p => p.id !== password.id);
+        setPasswords(updatedPasswords);
+        setPasswordToDelete(null);
+    }
+
     function handlePinSuccess() {
         setIsAuthenticating(false);
         setShowPinSetup(false);
         if (selectedPasswordForAuth) {
             setViewPassword(selectedPasswordForAuth);
             setSelectedPasswordForAuth(null);
+        }
+        if (passwordToDelete) {
+            confirmDelete(passwordToDelete);
         }
     }
 
@@ -292,7 +337,14 @@ export default function HomePage() {
                                 onClick={() => handleEditPassword(item)}
                                 aria-label="Edit"
                             >
-                                Edit
+                                <FaPencilAlt/> <span className="hidden sm:inline">Edit</span>
+                            </button>
+                            <button
+                                className="bg-red-500 hover:bg-red-600 px-4 py-2 text-white rounded-lg flex items-center gap-2 shadow transition"
+                                onClick={() => handleDeletePassword(item)}
+                                aria-label="Delete"
+                            >
+                                <FaTrash/> <span className="hidden sm:inline">Delete</span>
                             </button>
                         </div>
                     </li>
