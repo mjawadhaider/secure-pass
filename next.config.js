@@ -10,6 +10,23 @@ const withPWA = nextPWA({
 
 const nextConfig = withPWA({
     reactStrictMode: true,
+    async headers() {
+        return [
+            {
+                source: '/manifest.json',
+                headers: [
+                    {
+                        key: 'Content-Type',
+                        value: 'application/manifest+json',
+                    },
+                    {
+                        key: 'Access-Control-Allow-Origin',
+                        value: '*',
+                    },
+                ],
+            },
+        ];
+    },
 });
 
 export default nextConfig;

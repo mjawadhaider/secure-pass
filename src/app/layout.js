@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "SecurePass - Password Manager",
   description: "A secure, offline password manager",
-  manifest: "/manifest.json",
   appleWebApp: {
     title: "SecurePass",
     statusBarStyle: "default",
@@ -34,11 +33,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/icons/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </head>
-      <body
+    <head>
+      <link rel="icon" href="/icons/favicon.ico" sizes="any"/>
+      <link rel="apple-touch-icon" href="/icons/icon-192x192.png"/>
+      <link rel="manifest" href="/manifest.json"/>
+    </head>
+    <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen`}
       >
         <ThemeProvider>
