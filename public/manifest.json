@@ -57,6 +57,7 @@
       "purpose": "any maskable"
     }
   ],
+  "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "Add Password",
