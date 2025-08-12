@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaTimes, FaLock } from "react-icons/fa";
+import { FaTimes, FaLock, FaShieldAlt, FaCheck, FaExclamationCircle } from "react-icons/fa";
 import AuthService from "../services/AuthService";
 
 export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
@@ -69,58 +69,81 @@ export default function PinModal({ onSuccess, onCancel, isSetup = false }) {
   }, [showConfirm]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4 relative animate-scaleIn">
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
           aria-label="Close"
         >
-          <FaTimes className="text-xl" />
+          <FaTimes/>
         </button>
 
-        <div className="text-center mb-6">
-          <FaLock className="text-4xl text-blue-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-blue-700">
+        <div className="text-center my-6">
+          <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+            {isSetup ? <FaShieldAlt className="text-2xl"/> : <FaLock className="text-2xl"/>}
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-800 mb-1">
             {isSetup
-              ? showConfirm
-                ? "Confirm your PIN"
-                : "Set up a PIN"
-              : "Enter your PIN"}
+                ? showConfirm
+                  ? "Confirm your PIN"
+                  : "Create a PIN"
+                : "Enter your PIN"}
           </h2>
-          <p className="text-gray-500 text-sm mt-2">
+
+          <p className="text-gray-500 text-sm">
             {isSetup
-              ? "Create a PIN to protect your passwords"
-              : "Enter your PIN to view this password"}
+                ? "Secure your passwords with a PIN code"
+                : "Enter your PIN to continue"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            placeholder={showConfirm ? "Confirm PIN" : "Enter PIN"}
-            value={showConfirm ? confirmPin : pin}
-            onChange={showConfirm ? handleConfirmPinChange : handlePinChange}
-            className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 p-3 w-full rounded-lg transition text-center text-2xl tracking-widest"
-            autoFocus
-            inputMode="numeric"
-            pattern="[0-9]*"
-          />
+          <div className="flex justify-center">
+            <input
+              type="password"
+              placeholder={showConfirm ? "Confirm PIN" : "Enter PIN"}
+              value={showConfirm ? confirmPin : pin}
+              onChange={showConfirm ? handleConfirmPinChange : handlePinChange}
+              className="text-center text-2xl tracking-widest w-full px-4 py-3.5 rounded-xl border border-gray-200
+              focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 bg-gray-50"
+              autoFocus
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+            />
+          </div>
 
           {error && (
-            <div className="text-red-500 text-center font-medium">{error}</div>
+            <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 animate-fadeIn">
+              <FaExclamationCircle className="flex-shrink-0"/>
+              <span className="text-sm">{error}</span>
+            </div>
           )}
 
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white rounded-lg flex items-center gap-2 font-semibold shadow transition w-full justify-center"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl
+            flex items-center justify-center gap-2 transition-all duration-300 shadow-md hover:shadow-lg"
           >
             {isSetup
-              ? showConfirm
-                ? "Confirm PIN"
-                : "Continue"
-              : "Unlock"}
+                ? showConfirm
+                  ? <><FaCheck className="mr-1"/> Confirm PIN</>
+                  : "Continue"
+                : <><FaLock className="mr-1"/> Unlock</>}
           </button>
+
+          {!isSetup && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl
+              transition-colors duration-200 mt-2"
+            >
+              Cancel
+            </button>
+          )}
         </form>
       </div>
     </div>

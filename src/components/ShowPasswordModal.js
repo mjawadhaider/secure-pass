@@ -1,4 +1,4 @@
-import {FaClipboard, FaTimes} from "react-icons/fa";
+import {FaClipboard, FaTimes, FaCheck, FaKey, FaUser, FaLock} from "react-icons/fa";
 import {useState} from "react";
 
 export default function ShowPasswordModal({viewPassword, closeViewModal}) {
@@ -9,7 +9,7 @@ export default function ShowPasswordModal({viewPassword, closeViewModal}) {
             try {
                 await navigator.clipboard.writeText(password);
                 setCopied(true);
-                setTimeout(() => setCopied(false), 1200);
+                setTimeout(() => setCopied(false), 2000);
             } catch {
                 setCopied(false);
             }
@@ -17,41 +17,77 @@ export default function ShowPasswordModal({viewPassword, closeViewModal}) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 relative animate-scaleIn">
                 <button
                     onClick={() => closeViewModal() && setCopied(false)}
-                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Close"
                 >
-                    <FaTimes className="text-xl"/>
+                    <FaTimes/>
                 </button>
-                <h2 className="text-xl font-bold mb-6 text-blue-700">Password Details</h2>
-                <div className="mb-4">
-                    <div className="mb-2">
-                        <span className="font-semibold text-gray-700">Title:</span> {viewPassword.title}
+
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
+                        <FaKey className="text-xl"/>
                     </div>
-                    <div className="mb-2">
-                        <span className="font-semibold text-gray-700">Username:</span> {viewPassword.username}
-                    </div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                        <div>
-                            <span className="font-semibold text-gray-700">Password:</span>
-                            <span className="ml-2 font-mono tracking-wider">{viewPassword.password}</span>
-                            {copied && (
-                                <span className="ml-2 text-green-600 font-semibold text-xs">Copied!</span>
-                            )}
+                    <h2 className="text-xl font-semibold text-gray-800">
+                        {viewPassword.title}
+                    </h2>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                        <div className="text-indigo-500">
+                            <FaUser/>
                         </div>
-                        <button
-                            className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition"
-                            aria-label="Copy password"
-                            onClick={() => handleCopyPassword(viewPassword.password)}
-                        >
-                            <FaClipboard/>
-                        </button>
+                        <div>
+                            <div className="text-sm text-gray-500 mb-0.5">Username</div>
+                            <div className="text-gray-800 font-medium">{viewPassword.username}</div>
+                        </div>
                     </div>
+
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                                <div className="text-indigo-500">
+                                    <FaLock/>
+                                </div>
+                                <div className="text-sm text-gray-500">Password</div>
+                            </div>
+                            <button
+                                className={`p-2 rounded-lg transition-all duration-200 ${
+                                    copied 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-gray-100 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700'
+                                }`}
+                                onClick={() => handleCopyPassword(viewPassword.password)}
+                                aria-label="Copy password"
+                            >
+                                {copied ? <FaCheck/> : <FaClipboard/>}
+                            </button>
+                        </div>
+
+                        <div className="mt-1 font-mono tracking-wider text-gray-800 bg-white p-3 rounded-lg border border-gray-200 break-all">
+                            {viewPassword.password}
+                        </div>
+
+                        {copied && (
+                            <div className="mt-2 text-green-600 text-sm font-medium flex items-center gap-1.5 animate-fadeIn">
+                                <FaCheck size={12}/> Copied to clipboard
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={() => closeViewModal() && setCopied(false)}
+                        className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl
+                        transition-colors duration-200 mt-2"
+                    >
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
-    )
+    );
 }

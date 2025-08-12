@@ -1,4 +1,4 @@
-import {FaPlus, FaTimes} from "react-icons/fa";
+import {FaPlus, FaTimes, FaSave, FaKey} from "react-icons/fa";
 import {useState, useEffect} from "react";
 
 export default function AddPasswordPage({addNewPassword, onCloseModal, editPassword}) {
@@ -69,62 +69,86 @@ export default function AddPasswordPage({addNewPassword, onCloseModal, editPassw
     }
 
     return (
-        <>
-            <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-                <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm relative">
-                    <button
-                        onClick={closeModal}
-                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
-                        aria-label="Close"
-                    >
-                        <FaTimes className="text-xl"/>
-                    </button>
-                    <h2 className="text-xl font-bold mb-6 text-blue-700">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 relative animate-scaleIn">
+                <button
+                    onClick={closeModal}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label="Close"
+                >
+                    <FaTimes/>
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
+                        <FaKey className="text-xl"/>
+                    </div>
+                    <h2 className="text-xl font-semibold text-gray-800">
                         {editPassword ? "Edit Password" : "Add New Password"}
                     </h2>
-                    <form className="space-y-4" onSubmit={handleAddPassword}>
+                </div>
+
+                <form className="space-y-4" onSubmit={handleAddPassword}>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Title</label>
                         <input
                             type="text"
-                            placeholder="Title"
+                            placeholder="e.g. Gmail, Twitter, Bank"
                             name="title"
                             value={payload.title}
                             onChange={updatePayload}
-                            className="text-input"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500
+                            focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
                             required
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Username</label>
                         <input
                             type="text"
-                            placeholder="Username"
+                            placeholder="your.email@example.com"
                             name="username"
                             value={payload.username}
                             onChange={updatePayload}
-                            className="text-input"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500
+                            focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
                             required
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">Password</label>
                         <input
                             type="password"
-                            placeholder="Password"
+                            placeholder="Enter password"
                             name="password"
                             value={payload.password}
                             onChange={updatePayload}
-                            className="text-input"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500
+                            focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
                             required
                         />
-                        <button
-                            type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white rounded-lg flex items-center gap-2 font-semibold shadow transition w-full justify-center"
-                        >
-                            <FaPlus/> {editPassword ? "Update Password" : "Add Password"}
-                        </button>
-                        {msgConfig.show && (
-                            <div
-                                className={`mt-4 p-3 rounded-lg text-white ${msgConfig.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
-                                {msgConfig.msg}
-                            </div>
-                        )}
-                    </form>
-                </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl
+                        flex items-center justify-center gap-2 transition-all duration-300 shadow-md hover:shadow-lg"
+                    >
+                        {editPassword ? <FaSave/> : <FaPlus/>}
+                        {editPassword ? "Update Password" : "Add Password"}
+                    </button>
+
+                    {msgConfig.show && (
+                        <div
+                            className={`p-3 rounded-xl ${msgConfig.type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
+                            'bg-green-100 text-green-800 border border-green-200'} animate-fadeIn`}>
+                            {msgConfig.msg}
+                        </div>
+                    )}
+                </form>
             </div>
-        </>
+        </div>
     );
 }
