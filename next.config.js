@@ -17,7 +17,7 @@ const nextConfig = withPWA({
                 headers: [
                     {
                         key: 'Content-Type',
-                        value: 'application/manifest+json',
+                        value: 'application/json',
                     },
                     {
                         key: 'Access-Control-Allow-Origin',
