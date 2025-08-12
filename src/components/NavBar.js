@@ -40,6 +40,8 @@ export default function NavBar({ onSearch }) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === "accepted") {
+        // Mark the app as installed in localStorage
+        localStorage.setItem('securepass_app_installed', 'true');
         setShowInstall(false);
       }
       setDeferredPrompt(null);

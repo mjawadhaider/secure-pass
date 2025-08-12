@@ -5,6 +5,7 @@ import {useEffect, useState} from "react";
 import AddNewPasswordModal from "../components/CreateUpdatePasswordModal";
 import ShowPasswordModal from "@/components/ShowPasswordModal";
 import PinModal from "@/components/PinModal";
+import AppRedirectModal from "@/components/AppRedirectModal";
 import AuthService from "@/services/AuthService";
 
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
     const [showPinSetup, setShowPinSetup] = useState(false);
     const [logs, setLogs] = useState([]);
     const [authAction, setAuthAction] = useState(null);
+    const [showAppRedirect, setShowAppRedirect] = useState(false);
 
     const addLogs = (message) => {
         setLogs(prevLogs => [...prevLogs, `${message}\n`]);
@@ -59,6 +61,39 @@ export default function HomePage() {
         };
 
         checkBiometricAvailability();
+    }, []);
+
+    // Check if app is installed but we're in browser mode
+    useEffect(() => {
+        // Skip if we're in standalone mode (already in the app)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                            window.navigator.standalone === true;
+
+        if (isStandalone) {
+            return;
+        }
+
+        // Skip if user already chose to continue in browser this session
+        if (sessionStorage.getItem('skipAppRedirect') === 'true') {
+            return;
+        }
+
+        // Check if app was previously installed by looking for our custom flag
+        const isAppInstalled = localStorage.getItem('securepass_app_installed') === 'true';
+
+        if (isAppInstalled) {
+            // Show the redirect modal
+            setShowAppRedirect(true);
+        }
+
+        // Listen for app installation
+        window.addEventListener('appinstalled', (event) => {
+            localStorage.setItem('securepass_app_installed', 'true');
+        });
+
+        return () => {
+            window.removeEventListener('appinstalled', () => {});
+        };
     }, []);
 
     function loadPasswords() {
@@ -241,8 +276,9 @@ export default function HomePage() {
             {/* Add Button */}
             <button
                 onClick={() => setShowModal(true)}
-                className="fixed bottom-6 right-6 bg-white p-3.5 rounded-full shadow-lg hover:shadow-xl
-                text-indigo-600 z-30 transition-all duration-300 transform hover:scale-110 border border-indigo-100"
+                className="fixed bottom-6 right-6 bg-white dark:bg-gray-700 p-3.5 rounded-full shadow-lg hover:shadow-xl
+                text-indigo-600 dark:text-indigo-400 z-30 transition-all duration-300 transform hover:scale-110
+                border border-indigo-100 dark:border-gray-600"
                 aria-label="Add new password"
             >
                 <FaPlus className="text-xl"/>
@@ -360,6 +396,13 @@ export default function HomePage() {
             {/* View Password Modal */}
             {viewPassword && (
                 <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword}/>
+            )}
+
+            {/* App Redirect Modal */}
+            {showAppRedirect && (
+                <AppRedirectModal
+                    onClose={() => setShowAppRedirect(false)}
+                />
             )}
         </div>
     );
