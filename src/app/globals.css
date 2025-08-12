@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* New modern color palette */
+  /* Light theme colors */
   --color-primary: #6366f1;
   --color-primary-light: #818cf8;
   --color-primary-dark: #4f46e5;
@@ -14,20 +14,53 @@
   --color-border: #e5e7eb;
 }
 
-body {
-  /* Subtle, modern gradient background */
-  background: linear-gradient(120deg, #f8fafc 0%, #e2e8f0 100%);
-  min-height: 100vh;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--color-text);
+.dark {
+  /* Dark theme colors */
+  --color-primary: #818cf8;
+  --color-primary-light: #a5b4fc;
+  --color-primary-dark: #6366f1;
+  --color-secondary: #34d399;
+  --color-accent: #fb7185;
+  --color-background: #1f2937;
+  --color-card: #374151;
+  --color-text: #f9fafb;
+  --color-text-light: #d1d5db;
+  --color-border: #4b5563;
 }
 
-/* Glass effect for cards */
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode background */
+body:not(.dark) {
+  background: linear-gradient(120deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Dark mode background */
+body.dark {
+  background: linear-gradient(120deg, #111827 0%, #1f2937 100%);
+}
+
+/* Glass effect for cards - light mode */
 .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Glass effect for cards - dark mode */
+.dark .glass {
+  background: rgba(55, 65, 81, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(75, 85, 99, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* For dark glassy elements */
@@ -35,6 +68,51 @@ body {
   background: rgba(31, 41, 55, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode specific adjustments */
+.dark .bg-white {
+  background-color: var(--color-card);
+}
+
+.dark .text-gray-800 {
+  color: var(--color-text);
+}
+
+.dark .text-gray-700 {
+  color: var(--color-text-light);
+}
+
+.dark .text-gray-600 {
+  color: var(--color-text-light);
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+.dark .border-gray-100 {
+  border-color: var(--color-border);
+}
+
+.dark .border-gray-200 {
+  border-color: var(--color-border);
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1f2937;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #374151;
+}
+
+.dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563;
 }
 
 /* Smooth animations */
