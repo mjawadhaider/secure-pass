@@ -25,12 +25,19 @@ function drawLockIcon(ctx, size) {
   // Lock dimensions (relative to center)
   const lockWidth = 18 * scale;
   const lockHeight = 11 * scale;
-  const lockX = centerX - (lockWidth / 2);
-  const lockY = centerY - (lockHeight / 2) + (scale * 2); // Slight adjustment to visually center
 
-  // Shackle dimensions
+  // Calculate shackle dimensions
   const shackleWidth = 10 * scale;
   const shackleHeight = 9 * scale;
+
+  // Calculate total height of lock + shackle
+  const totalHeight = lockHeight + shackleHeight;
+
+  // Position lock to be centered both horizontally and vertically
+  const lockX = centerX - (lockWidth / 2);
+  const lockY = centerY - (totalHeight / 2) + shackleHeight; // Center the entire lock assembly
+
+  // Position shackle above the lock
   const shackleX = centerX - (shackleWidth / 2);
   const shackleY = lockY - shackleHeight;
 
@@ -63,7 +70,7 @@ function drawLockIcon(ctx, size) {
   ctx.lineTo(shackleX + shackleWidth, lockY);
   ctx.stroke();
 
-  // Lock keyhole
+  // Lock keyhole (centered in the lock body)
   ctx.beginPath();
   ctx.arc(centerX, lockY + lockHeight / 2, scale, 0, Math.PI * 2);
   ctx.stroke();

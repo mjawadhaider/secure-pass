@@ -6,7 +6,19 @@ const withPWA = nextPWA({
     dest: 'public',
     register: true,
     skipWaiting: true,
+    cacheOnFrontEndNav: true,
     runtimeCaching: [
+        {
+            urlPattern: /\/$/,  // Root path
+            handler: 'StaleWhileRevalidate',  // Faster than NetworkFirst for main routes
+            options: {
+                cacheName: 'html-cache',
+                expiration: {
+                    maxEntries: 10,
+                    maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                },
+            },
+        },
         {
             urlPattern: /\/_next\/static\/.*/,
             handler: 'CacheFirst',

@@ -27,9 +27,10 @@ export default function Icon() {
           borderRadius: 8,
         }}
       >
+        {/* Better centered lock icon */}
         <svg
-          width="24"
-          height="24"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           stroke="white"
@@ -37,10 +38,9 @@ export default function Icon() {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          {/* Centered lock icon */}
-          <rect x="5" y="11" width="14" height="10" rx="2" ry="2"></rect>
-          <path d="M7 11V8a5 5 0 0 1 10 0v3"></path>
-          <circle cx="12" cy="16" r="1"></circle>
+          <rect x="5" y="12" width="14" height="10" rx="2" ry="2"></rect>
+          <path d="M7 12V7a5 5 0 0 1 10 0v5"></path>
+          <circle cx="12" cy="17" r="1"></circle>
         </svg>
       </div>
     ),

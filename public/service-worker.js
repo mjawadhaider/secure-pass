@@ -22,8 +22,17 @@ const ASSETS_TO_CACHE = [
     '/_next/static/chunks/main.js',
     '/_next/static/chunks/webpack.js',
     '/_next/static/css/app.css',
+    '/_next/static/css/',
+    '/_next/static/media/',
+    '/_next/static/chunks/pages/',
+    '/_next/static/chunks/framework',
+    '/_next/static/chunks/main',
+    '/_next/static/chunks/webpack',
+    '/_next/static/chunks/app/',
+    '/_next/static/development/',
+    '/_next/static/runtime/',
     // Add offline page
-    '/offline.html'
+    '/offline.html',
 ];
 
 // Install event - cache assets
@@ -49,35 +58,70 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event - serve from cache, fallback to network
+// In public/service-worker.js - Update the fetch event handler
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+    // Handle navigation requests (HTML pages) specially
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            // Try the cache first for navigation requests
+            caches.match(event.request)
+                .then(cachedResponse => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
 
-      return fetch(event.request)
-        .then((response) => {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
+                    // If not in cache, try network
+                    return fetch(event.request)
+                        .then(response => {
+                            // Cache successful navigation responses
+                            if (response && response.status === 200) {
+                                const responseToCache = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(event.request, responseToCache);
+                                });
+                                return response;
+                            }
+                            return response;
+                        })
+                        .catch(() => {
+                            // If both cache and network fail, serve the root page
+                            // This is better than showing offline.html for in-app navigation
+                            return caches.match('/');
+                        });
+                })
+        );
+    } else {
+        // For non-navigation requests, use the existing strategy
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
 
-          // Clone the response (stream can only be consumed once)
-          const responseToCache = response.clone();
+                return fetch(event.request)
+                    .then((response) => {
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
 
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
 
-          return response;
-        })
-        .catch(() => {
-          // When offline and not in cache, serve a fallback
-          if (event.request.mode === 'navigate') {
-            return caches.match('/offline.html');
-          }
-        });
-    })
-  );
+                        return response;
+                    })
+                    .catch(() => {
+                        return caches.match('/')
+                            .then(cachedShell => {
+                                if (cachedShell) {
+                                    return cachedShell;
+                                }
+                                // If shell isn't cached, use offline page
+                                return caches.match('/offline.html');
+                            });
+                    });
+            })
+        );
+    }
 });

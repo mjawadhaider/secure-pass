@@ -1,6 +1,16 @@
 "use client";
 
-import {FaEye, FaFingerprint, FaPlus, FaSearch, FaUserCircle, FaPencilAlt, FaTrash, FaKey, FaLock} from "react-icons/fa";
+import {
+    FaEye,
+    FaFingerprint,
+    FaKey,
+    FaLock,
+    FaPencilAlt,
+    FaPlus,
+    FaSearch,
+    FaTrash,
+    FaUserCircle
+} from "react-icons/fa";
 import {useEffect, useState} from "react";
 import AddNewPasswordModal from "../components/CreateUpdatePasswordModal";
 import ShowPasswordModal from "@/components/ShowPasswordModal";
@@ -85,7 +95,7 @@ export default function HomePage() {
     useEffect(() => {
         // Skip if we're in standalone mode (already in the app)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                            window.navigator.standalone === true;
+            window.navigator.standalone === true;
 
         if (isStandalone) {
             return;
@@ -110,18 +120,26 @@ export default function HomePage() {
         });
 
         return () => {
-            window.removeEventListener('appinstalled', () => {});
+            window.removeEventListener('appinstalled', () => {
+            });
         };
     }, []);
 
     function loadPasswords() {
-        const stored = typeof window !== "undefined" ? localStorage.getItem("passwords") : null;
-        if (stored) {
-            try {
-                setPasswords(JSON.parse(stored));
-            } catch {
-                setPasswords([]);
+        if (typeof window === "undefined") return;
+
+        try {
+            const stored = typeof window !== "undefined" ? localStorage.getItem("passwords") : null;
+            if (stored) {
+                try {
+                    setPasswords(JSON.parse(stored));
+                } catch {
+                    setPasswords([]);
+                }
             }
+        } catch (e) {
+            console.error("Error loading passwords:", error);
+            setPasswords([]);
         }
     }
 
@@ -277,161 +295,166 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div className="min-h-screen pb-20 px-4 max-w-2xl mx-auto pt-20">
-
+        <>
             {isOffline && (
-                <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-3 rounded-lg mb-4 animate-fadeIn">
+                <div
+                    className="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-3 rounded-lg mb-4 animate-fadeIn">
                     <div className="flex items-center">
                         <span className="mr-2">📶</span>
                         <span>You are offline. App will continue to work with stored passwords.</span>
                     </div>
                 </div>
             )}
+            <div className="min-h-screen pb-20 px-4 max-w-2xl mx-auto pt-5">
 
-            {/* Search Bar */}
-            <div className="relative w-full mx-auto mb-8">
-                <input
-                    type="text"
-                    placeholder="Search passwords..."
-                    defaultValue={searchTerm}
-                    onKeyUp={handleKeyDown}
-                    className="w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-800 glass focus:outline-none
+                {/* Search Bar */}
+                <div className="relative w-full mx-auto mb-8">
+                    <input
+                        type="text"
+                        placeholder="Search passwords..."
+                        defaultValue={searchTerm}
+                        onKeyUp={handleKeyDown}
+                        className="w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-800 glass focus:outline-none
                     focus:ring-2 focus:ring-indigo-400 transition-all duration-300 shadow-sm"
-                />
-                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"/>
-            </div>
+                    />
+                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"/>
+                </div>
 
-            {/* Add Button */}
-            <button
-                onClick={() => setShowModal(true)}
-                className="fixed bottom-6 right-6 bg-white dark:bg-gray-700 p-3.5 rounded-full shadow-lg hover:shadow-xl
+                {/* Add Button */}
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="fixed bottom-6 right-6 bg-white dark:bg-gray-700 p-3.5 rounded-full shadow-lg hover:shadow-xl
                 text-indigo-600 dark:text-indigo-400 z-30 transition-all duration-300 transform hover:scale-110
                 border border-indigo-100 dark:border-gray-600"
-                aria-label="Add new password"
-            >
-                <FaPlus className="text-xl"/>
-            </button>
+                    aria-label="Add new password"
+                >
+                    <FaPlus className="text-xl"/>
+                </button>
 
-            {/* Section Title */}
-            <div className="flex items-center space-x-3 mb-6">
-                <div className="bg-indigo-500 p-2 rounded-lg text-white shadow-md">
-                    <FaKey className="text-xl"/>
-                </div>
-                <h2 className="text-xl font-bold text-gray-800">
-                    Your Passwords
-                </h2>
-            </div>
-
-            {/* Password List */}
-            {filteredPasswords.length === 0 ? (
-                <div className="glass p-8 rounded-xl text-center animate-fadeIn">
-                    <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center mx-auto mb-4">
-                        <FaLock className="text-2xl"/>
+                {/* Section Title */}
+                <div className="flex items-center space-x-3 mb-6">
+                    <div className="bg-indigo-500 p-2 rounded-lg text-white shadow-md">
+                        <FaKey className="text-xl"/>
                     </div>
-                    <p className="text-gray-600 mb-2">No passwords found</p>
-                    <p className="text-gray-500 text-sm">Add your first password using the + button</p>
+                    <h2 className="text-xl font-bold text-gray-800">
+                        Your Passwords
+                    </h2>
                 </div>
-            ) : (
-                <ul className="space-y-3">
-                    {filteredPasswords.map((item) => (
-                        <li
-                            key={item.id}
-                            className="glass p-4 rounded-xl flex items-center justify-between hover:shadow-md
+
+                {/* Password List */}
+                {filteredPasswords.length === 0 ? (
+                    <div className="glass p-8 rounded-xl text-center animate-fadeIn">
+                        <div
+                            className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-500 flex items-center justify-center mx-auto mb-4">
+                            <FaLock className="text-2xl"/>
+                        </div>
+                        <p className="text-gray-600 mb-2">No passwords found</p>
+                        <p className="text-gray-500 text-sm">Add your first password using the + button</p>
+                    </div>
+                ) : (
+                    <ul className="space-y-3">
+                        {filteredPasswords.map((item) => (
+                            <li
+                                key={item.id}
+                                className="glass p-4 rounded-xl flex items-center justify-between hover:shadow-md
                             transition-all duration-300 border-l-4 border-indigo-500 animate-slideUp"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
-                                    <FaUserCircle className="text-xl"/>
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-indigo-100 p-2.5 rounded-lg text-indigo-600">
+                                        <FaUserCircle className="text-xl"/>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-800">{item.title}</p>
+                                        <p className="text-gray-500 text-sm">{item.username}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-800">{item.title}</p>
-                                    <p className="text-gray-500 text-sm">{item.username}</p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleViewPassword(item)}
+                                        className="p-2 text-gray-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg
+                                    transition-colors duration-200"
+                                        aria-label="View"
+                                    >
+                                        <FaEye/>
+                                    </button>
+                                    <button
+                                        onClick={() => handleEditPassword(item)}
+                                        className="p-2 text-gray-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg
+                                    transition-colors duration-200"
+                                        aria-label="Edit"
+                                    >
+                                        <FaPencilAlt/>
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeletePassword(item)}
+                                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg
+                                    transition-colors duration-200"
+                                        aria-label="Delete"
+                                    >
+                                        <FaTrash/>
+                                    </button>
                                 </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleViewPassword(item)}
-                                    className="p-2 text-gray-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg
-                                    transition-colors duration-200"
-                                    aria-label="View"
-                                >
-                                    <FaEye/>
-                                </button>
-                                <button
-                                    onClick={() => handleEditPassword(item)}
-                                    className="p-2 text-gray-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg
-                                    transition-colors duration-200"
-                                    aria-label="Edit"
-                                >
-                                    <FaPencilAlt/>
-                                </button>
-                                <button
-                                    onClick={() => handleDeletePassword(item)}
-                                    className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg
-                                    transition-colors duration-200"
-                                    aria-label="Delete"
-                                >
-                                    <FaTrash/>
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
-            {/* Biometric Authentication Indicator */}
-            {isAuthenticating && biometricAvailable && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fadeIn"
-                     onClick={onClickOutsideLoader}>
-                    <div className="bg-white rounded-2xl shadow-xl p-8 text-center transform animate-scaleIn max-w-xs w-full mx-4">
-                        <FaFingerprint className="text-6xl text-indigo-500 mx-auto mb-6 animate-pulse"/>
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                            Verifying Identity
-                        </h2>
-                        <p className="text-gray-500">
-                            Use your device&#39;s security method
-                        </p>
+                {/* Biometric Authentication Indicator */}
+                {isAuthenticating && biometricAvailable && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fadeIn"
+                        onClick={onClickOutsideLoader}>
+                        <div
+                            className="bg-white rounded-2xl shadow-xl p-8 text-center transform animate-scaleIn max-w-xs w-full mx-4">
+                            <FaFingerprint className="text-6xl text-indigo-500 mx-auto mb-6 animate-pulse"/>
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                Verifying Identity
+                            </h2>
+                            <p className="text-gray-500">
+                                Use your device&#39;s security method
+                            </p>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Add/Edit Modal */}
-            {showModal && (
-                <AddNewPasswordModal
-                    addNewPassword={addNewPassword}
-                    onCloseModal={onCloseNewPasswordModal}
-                    editPassword={editPassword}
-                />
-            )}
+                {/* Add/Edit Modal */}
+                {showModal && (
+                    <AddNewPasswordModal
+                        addNewPassword={addNewPassword}
+                        onCloseModal={onCloseNewPasswordModal}
+                        editPassword={editPassword}
+                    />
+                )}
 
-            {/* PIN Setup Modal */}
-            {showPinSetup && (
-                <PinModal
-                    onSuccess={handlePinSuccess}
-                    onCancel={handlePinCancel}
-                    isSetup={true}
-                />
-            )}
+                {/* PIN Setup Modal */}
+                {showPinSetup && (
+                    <PinModal
+                        onSuccess={handlePinSuccess}
+                        onCancel={handlePinCancel}
+                        isSetup={true}
+                    />
+                )}
 
-            {/* PIN Verification Modal */}
-            {isAuthenticating && !biometricAvailable && (
-                <PinModal
-                    onSuccess={handlePinSuccess}
-                    onCancel={handlePinCancel}
-                />
-            )}
+                {/* PIN Verification Modal */}
+                {isAuthenticating && !biometricAvailable && (
+                    <PinModal
+                        onSuccess={handlePinSuccess}
+                        onCancel={handlePinCancel}
+                    />
+                )}
 
-            {/* View Password Modal */}
-            {viewPassword && (
-                <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword}/>
-            )}
+                {/* View Password Modal */}
+                {viewPassword && (
+                    <ShowPasswordModal closeViewModal={closeViewModal} viewPassword={viewPassword}/>
+                )}
 
-            {/* App Redirect Modal */}
-            {showAppRedirect && (
-                <AppRedirectModal
-                    onClose={() => setShowAppRedirect(false)}
-                />
-            )}
-        </div>
+                {/* App Redirect Modal */}
+                {showAppRedirect && (
+                    <AppRedirectModal
+                        onClose={() => setShowAppRedirect(false)}
+                    />
+                )}
+            </div>
+        </>
     );
 }
