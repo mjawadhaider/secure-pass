@@ -4,13 +4,26 @@ const CACHE_NAME = `password-manager-${CACHE_VERSION}`;
 
 // Assets to cache during installation
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/favicon.ico',
-  '/icons/add-icon.png',
-  // Add all your CSS, JS, images, and font files
-  // Include routes that should work offline
+    '/',
+    '/index.html',
+    '/manifest.json',
+    '/icons/favicon.ico',
+    '/icons/add-icon.png',
+    // Add all icon files
+    '/icons/icon-72x72.png',
+    '/icons/icon-96x96.png',
+    '/icons/icon-128x128.png',
+    '/icons/icon-144x144.png',
+    '/icons/icon-152x152.png',
+    '/icons/icon-192x192.png',
+    '/icons/icon-384x384.png',
+    '/icons/icon-512x512.png',
+    // Add CSS and JS files (update with your actual build output)
+    '/_next/static/chunks/main.js',
+    '/_next/static/chunks/webpack.js',
+    '/_next/static/css/app.css',
+    // Add offline page
+    '/offline.html'
 ];
 
 // Install event - cache assets

@@ -6,6 +6,53 @@ const withPWA = nextPWA({
     dest: 'public',
     register: true,
     skipWaiting: true,
+    runtimeCaching: [
+        {
+            urlPattern: /\/_next\/static\/.*/,
+            handler: 'CacheFirst',
+            options: {
+                cacheName: 'static-assets',
+                expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+            },
+        },
+        {
+            urlPattern: /\/_next\/image\?.*/,
+            handler: 'CacheFirst',
+            options: {
+                cacheName: 'next-image',
+                expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+            },
+        },
+        {
+            urlPattern: /\/api\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+                cacheName: 'api-cache',
+                expiration: {
+                    maxEntries: 50,
+                    maxAgeSeconds: 60 * 60, // 1 hour
+                },
+            },
+        },
+        // Default cache
+        {
+            urlPattern: /.*/,
+            handler: 'NetworkFirst',
+            options: {
+                cacheName: 'others',
+                expiration: {
+                    maxEntries: 50,
+                    maxAgeSeconds: 60 * 60 * 24, // 24 hours
+                },
+            },
+        },
+    ],
 });
 
 const nextConfig = withPWA({

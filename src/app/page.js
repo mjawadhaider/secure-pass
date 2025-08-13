@@ -23,6 +23,24 @@ export default function HomePage() {
     const [logs, setLogs] = useState([]);
     const [authAction, setAuthAction] = useState(null);
     const [showAppRedirect, setShowAppRedirect] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
+
+    useEffect(() => {
+        // Set up online/offline listeners
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        // Check initial status
+        setIsOffline(!navigator.onLine);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const addLogs = (message) => {
         setLogs(prevLogs => [...prevLogs, `${message}\n`]);
@@ -260,6 +278,16 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen pb-20 px-4 max-w-2xl mx-auto pt-20">
+
+            {isOffline && (
+                <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-3 rounded-lg mb-4 animate-fadeIn">
+                    <div className="flex items-center">
+                        <span className="mr-2">📶</span>
+                        <span>You are offline. App will continue to work with stored passwords.</span>
+                    </div>
+                </div>
+            )}
+
             {/* Search Bar */}
             <div className="relative w-full mx-auto mb-8">
                 <input
